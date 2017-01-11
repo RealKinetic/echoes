@@ -2,17 +2,22 @@ TODOS
 =====
 
 - [ ] Core
+  - [ ] Standard Logging Pattern
+    - [ ] Include default prefix for easier pattern matching
   - [ ] Config System
     - [ ] Memcache based
       - [ ] Locking Mechanism
       - [ ] Filter requests from memcache distrupter
     - [ ] File based (Yaml?)
+    - [x] Default in memory
   - [ ] Distribution System
     - [ ] Percent Random
     - [ ] Activity Based (heavy component usage)
 - [ ] Datastore
-  - [ ] Datastore Errors
-  - [ ] Default config off common error patterns
+  - [x] Datastore Errors
+  - [x] Default config off common error patterns
+    - [x] Verify errors are still accurate
+    - [x] Add reference to sdk file(s) with errors
   - [ ] Latency spikes
   - [ ] Hot key / entity monitoring
   - [ ] Entity type pattern matching

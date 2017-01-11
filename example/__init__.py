@@ -20,5 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import webapp2
 
-from gchaos.install import install_chaos
+from datastore_error_handlers import DBTestHandler
+from datastore_error_handlers import NDBTestHandler
+from datastore_error_handlers import NDBNestedTestHandler
+
+config = {}
+
+app = webapp2.WSGIApplication([
+    ('/example/db', DBTestHandler),
+    ('/example/ndb', NDBTestHandler),
+    ('/example/ndbnested', NDBNestedTestHandler),
+], config=config)
+
+# TODO: Add settings flag to enable chaos.
+from gchaos import install_chaos
+install_chaos()

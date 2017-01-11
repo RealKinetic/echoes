@@ -21,4 +21,18 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+class ACTIONS:
+    """Datastore actions we are tracking."""
+
+    PUT = "PUT"
+    GET = "GET"
+    DELETE ="DELETE"
+
+    @classmethod
+    def all(cls):
+        """Return a tuple of all the datastore actions.
+
+        Return:
+            tuple(str): Tuple of datastore action strings
+        """
+        return (cls.PUT, cls.GET, cls.DELETE)

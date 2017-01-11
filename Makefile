@@ -21,4 +21,29 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+test: clean
+        nosetests --logging-level=ERROR -a slow --with-coverage ${ARGS}
+
+unit:
+	nosetests ${ARGS}
+
+integrations:
+	nosetests --logging-level=ERROR -a slow ${ARGS}
+
+setup: deps
+
+deps: deps-dev 
+
+deps-dev:
+	pip install -Ur requirements-dev.txt
+
+fix_gae:
+	@echo "Attempting install of gae.pth"
+	bash fix_gae.sh
+	@echo "Install complete"
+
+run:
+	dev_appserver.py app.yaml
+
+clean:
+	find . -name "*.py[co]" -delete

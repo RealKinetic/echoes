@@ -21,4 +21,18 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+from gchaos.gae.datastore.errors import install_error_hook
+
+
+def install_datastore_hooks(config):
+    """Install the datastore hooks with the configured configs if the datastore
+    config is enabled.
+
+    Args:
+        config (gchaos.gae.config.hydrate.DatastoreConfig): Datastore Configuration
+
+    Return:
+        None
+    """
+    if config.enabled:
+        install_error_hook(config.errors)

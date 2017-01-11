@@ -21,4 +21,5 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+class ChaosException(Exception):
+    """A Chaos Exception."""

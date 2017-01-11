@@ -21,4 +21,16 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+from gchaos.config.memory import DEFAULT_CONFIG as INMEM_CONFIG
+from gchaos.config.hydrate import ChaosConfig
+
+
+DEFAULT_CONFIG = {}
+
+# For now only using in-memory config
+DEFAULT_CONFIG.update(INMEM_CONFIG)
+
+CHAOS_CONFIG = ChaosConfig(DEFAULT_CONFIG)
+
+
+__all__ = [CHAOS_CONFIG, DEFAULT_CONFIG]

@@ -21,4 +21,25 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+import logging
+
+from gchaos.config import CHAOS_CONFIG
+from gchaos.gae.datastore import install_datastore_hooks
+
+# TODO: Override the logging module so we can get a nice chaos formatted
+# message
+
+
+def install_chaos(config=None):
+    """Log a quick message then install the chaos hooks into the Google API
+    Proxies.
+    """
+    logging.info("CHAOS: Going to cause system wide chaos!!!")
+
+    if not config:
+        config = CHAOS_CONFIG
+
+    # TODO: Create a to dict method on the ChaosConfig object.
+    # logging.info("CHAOS: Default Chaos Config: {0}".format(config))
+
+    install_datastore_hooks(config.datastore)

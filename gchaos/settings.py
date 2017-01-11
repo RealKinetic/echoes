@@ -20,5 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-from gchaos.install import install_chaos
+# Datastore
+DATASTORE_VERSION = "v3"
+DATASTORE_STUB = "datastore_{0}".format(DATASTORE_VERSION)

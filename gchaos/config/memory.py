@@ -21,4 +21,14 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+from gchaos.config.datastore import CONFIG as DATASTORE_CONFIG
+
+DATASTORE = 'datastore'
+
+
+DEFAULT_CONFIG = {
+    DATASTORE: DATASTORE_CONFIG
+}
+
+
+__all__ = [DEFAULT_CONFIG]

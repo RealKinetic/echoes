@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # MIT License
 
 # Copyright (c) 2017 Real Kinetic
@@ -21,4 +23,10 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Must run in a virtualenv!"
+    exit 1
+fi
+
+echo `dirname $(dirname \`which dev_appserver.py\`)`/platform/google_appengine > $VIRTUAL_ENV/lib/python2.7/site-packages/gae.pth
+echo "import dev_appserver; dev_appserver.fix_sys_path();" >> $VIRTUAL_ENV/lib/python2.7/site-packages/gae.pth

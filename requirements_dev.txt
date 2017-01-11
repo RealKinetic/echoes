@@ -21,4 +21,10 @@
 # SOFTWARE.
 
 
-from gchaos.install import install_chaos
+# unit / integration testing
+mock==2.0.0
+nose
+nosegae
+rednose
+coverage
+
