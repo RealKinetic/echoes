@@ -20,19 +20,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
+import random
 
-from gchaos.gae.datastore.hook import install_hook
 
-
-def install_datastore_hooks(config):
-    """Install the datastore hooks with the configured configs if the datastore
-    config is enabled.
+def roll(value):
+    """Returns True if the past in value is greather than the random chance that
+    we compute via the random module.
 
     Args:
-        config (gchaos.gae.config.hydrate.DatastoreConfig): Datastore Configuration
+        value (float): The value to compare to. It should be between
+                      (0.00 and 1.00)
 
     Return:
-        None
+        bool
     """
-    if config.enabled:
-        install_hook(config)
+    chance = _get_chance()
+
+    logging.info("RATE {0} AND CHANCE {1}".format(value, chance))
+
+    return value >= chance
+
+
+def _get_chance():
+    """Generate a random number and return it.
+
+    Return:
+        int
+    """
+    random.seed()
+    return random.random()

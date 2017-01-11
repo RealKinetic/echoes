@@ -20,15 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 import logging
 
 from collections import defaultdict
+import random
 
 
 from itertools import ifilter
 from itertools import imap
 
-from gchaos.chance import roll
 from gchaos.errors import ChaosException
 from gchaos.gae.datastore.actions import ACTIONS
 from gchaos.settings import DATASTORE_STUB
@@ -49,7 +50,14 @@ def trigger(error_config):
     Return:
         None
     """
-    if not roll(error_config.error_rate):
+    chance = _get_chance()
+
+    logging.info("ERROR RATE {0} AND CHANCE {1}".format(
+        error_config.error_rate, chance))
+
+    if error_config.error_rate < chance:
+        # TODO: Look at using inspect to insert this definition will always
+        # work.
         return
 
     if error_config.errors.choices and error_config.errors.weights:
@@ -59,3 +67,13 @@ def trigger(error_config):
         raise error_info.func()
 
     raise ChaosException("Raising Chaos!")
+
+
+def _get_chance():
+    """Generate a random number and return it.
+
+    Return:
+        int
+    """
+    random.seed()
+    return random.random()

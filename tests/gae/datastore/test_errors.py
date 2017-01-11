@@ -35,93 +35,44 @@ from gchaos.gae.datastore.actions import ACTIONS
 from gchaos.utils import full_name
 
 from gchaos.gae.datastore.errors import trigger
-from gchaos.gae.datastore.errors import trigger_action_error
 
 
-class TriggerActionErrorTests(unittest.TestCase):
-
-    def test_name_not_in_actions(self):
-        """Ensure if the name is not in the actions that no subsequent calls
-        are made.
-        """
-        name = "foo"
-
-        error_config = CHAOS_CONFIG.datastore.errors
-        error_config.get_by_action = MagicMock(return_value=None)
-
-        trigger_action_error(name, error_config)
-
-        error_config.get_by_action.assert_not_called()
-
-    @patch('gchaos.gae.datastore.errors.trigger')
-    def test_name_in_actions_but_no_error_config(self, trigger_mock):
-        """Ensure if the name is in the actions it loads the error config but
-        since that's None it doesn't trigger.
-        """
-        name = ACTIONS.GET
-
-        error_config = CHAOS_CONFIG.datastore.errors
-        error_config.get_by_action = MagicMock(return_value=None)
-
-        trigger_action_error(name, error_config)
-
-        error_config.get_by_action.assert_called_once_with(name)
-        trigger_mock.assert_not_called()
-
-    @patch('gchaos.gae.datastore.errors.trigger')
-    def test_name_in_actions_and_has_error_config(self, trigger_mock):
-        """Ensure if the name is in the actions it loads the error config and
-        since that returns a config it calls trigger with the config.
-        """
-        name = ACTIONS.PUT
-
-        put_config = CHAOS_CONFIG.datastore.errors.put_errors
-
-        error_config = CHAOS_CONFIG.datastore.errors
-        error_config.get_by_action = MagicMock(return_value=put_config)
-
-        trigger_action_error(name, error_config)
-
-        error_config.get_by_action.assert_called_once_with(name)
-        trigger_mock.assert_called_once_with(put_config)
-
-
-@patch('gchaos.gae.datastore.errors._get_chance')
+@patch('gchaos.gae.datastore.errors.roll')
 class TriggerTestCase(unittest.TestCase):
 
-    def test_error_rate_less_than_chance(self, chance):
+    def test_error_rate_less_than_chance(self, roll):
         """Ensure when the chance is greater than the error rate that no
         execption is raised.
         """
-        chance.return_value = 1
+        roll.return_value = False
 
         config = ErrorConfig({"a": 1}, 0.01)
 
         trigger(config)
 
-        chance.assert_called_once_with()
+        roll.assert_called_once_with(0.01)
 
-    def test_error_rate_greater_than_chance_but_no_errors(self, chance):
+    def test_error_rate_greater_than_chance_but_no_errors(self, roll):
         """Ensure when the error rate is greater than the chance but there are
         no errors configured that a ChaosException is raised.
         """
-        chance.return_value = 0
+        roll.return_value = True
 
         config = ErrorConfig({}, 1)
 
         self.assertRaises(ChaosException, trigger, config)
 
-        chance.assert_called_once_with()
+        roll.assert_called_once_with(1)
 
-    def test_error_rate_greater_than_chance_with_errors(self, chance):
+    def test_error_rate_greater_than_chance_with_errors(self, roll):
         """Ensure when the error rate is greater than the chance and there are
         errors configured that an Exception from the errors Choice is raised.
         """
-        chance.return_value = 0
+        roll.return_value = True
 
         err = full_name(datastore_errors.BadValueError)
         config = ErrorConfig({err: 1}, 1)
 
         self.assertRaises(datastore_errors.BadValueError, trigger, config)
 
-        chance.assert_called_once_with()
+        roll.assert_called_once_with(1)
