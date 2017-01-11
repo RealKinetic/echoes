@@ -55,7 +55,13 @@ The list of supported Google Datastore errors can be found here:
 
 ### Install
 
-TODO: Add pip install instructions for github project
+Pip Install
+
+`pip install git+git://github.com/RealKinetic/gchaos.git#egg=master`
+
+Add to requirements.txt
+
+`-e git://github.com/RealKinetic/gchaos.git#egg=master`
 
 TODO: Add pip install instructions once pushed to pypi
 
