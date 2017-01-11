@@ -51,7 +51,6 @@ class HydrateDataStoreConfigTests(unittest.TestCase):
 
 def verify_datastore_config(datastore_config, runner):
     runner.assertEqual(datastore_config.enabled, True)
-    runner.assertIsNone(datastore_config.latency)
 
     # DELETE ERRORS
     runner.assertEqual(datastore_config.errors.delete_errors.error_rate, 0.05)
@@ -85,3 +84,41 @@ def verify_datastore_config(datastore_config, runner):
         datastore_config.errors.put_errors.errors.weights,
         DS_CONFIG["errors"]["PUT"][0].values()
     )
+
+    # DELETE LATENCIES
+    runner.assertEqual(datastore_config.latency.delete_latencies.latency_rate,
+                       0.05)
+    runner.assertEqual(
+        datastore_config.latency.delete_latencies.latencies.choices,
+        DS_CONFIG["latency"]["DELETE"][0].keys()
+    )
+    runner.assertEqual(
+        datastore_config.latency.delete_latencies.latencies.weights,
+        DS_CONFIG["latency"]["DELETE"][0].values()
+    )
+
+    # GET LATENCIES
+    runner.assertEqual(datastore_config.latency.get_latencies.latency_rate,
+                       0.01)
+    runner.assertEqual(
+        datastore_config.latency.get_latencies.latencies.choices,
+        DS_CONFIG["latency"]["GET"][0].keys()
+    )
+    runner.assertEqual(
+        datastore_config.latency.get_latencies.latencies.weights,
+        DS_CONFIG["latency"]["GET"][0].values()
+    )
+
+    # PUT LATENCIES
+    runner.assertEqual(datastore_config.latency.put_latencies.latency_rate,
+                       0.02)
+    runner.assertEqual(
+        datastore_config.latency.put_latencies.latencies.choices,
+        DS_CONFIG["latency"]["PUT"][0].keys()
+    )
+    runner.assertEqual(
+        datastore_config.latency.put_latencies.latencies.weights,
+        DS_CONFIG["latency"]["PUT"][0].values()
+    )
+
+

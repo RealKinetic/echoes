@@ -26,6 +26,7 @@ from gchaos.gae.datastore.actions import ACTIONS
 
 
 DEFAULT_ERROR_ENTRY = ({}, 0.00)
+DEFAULT_LATENCY_ENTRY = ({}, 0.00)
 
 
 class ChaosConfig(object):
@@ -64,7 +65,7 @@ class DatastoreConfig(object):
         """
         self.enabled = config.get('enabled', False)
         self.errors = ErrorsConfig(config.get('errors', {}))
-        self.latency = None
+        self.latency = LatenciesConfig(config.get('latency', {}))
 
 
 class ErrorsConfig(object):
@@ -125,3 +126,68 @@ class ErrorConfig(object):
         """
         self.errors = Choice(errors.values(), errors.keys())
         self.error_rate = error_rate
+
+
+class LatenciesConfig(object):
+    """Datastore latencies configuration object.
+
+    Properties:
+        delete_latencies (LatencyConfig): Delete latency configuration
+        get_latencies (LatencyConfig): Get latency configuration
+        put_latencies (LatencyConfig): Put latency configuration
+    """
+
+    def __init__(self, config):
+        """Initlialize the LatenciesConfig object setting the delete_latencies,
+        get_latencies and put_latencies to a LatencyConfig generated off the
+        passed in config.
+
+        Args:
+            config (dict): Dictionary of a Datastore Latencies Configuration
+        """
+        self.delete_latencies = LatencyConfig(
+            *config.get("DELETE", DEFAULT_LATENCY_ENTRY))
+
+        self.get_latencies = LatencyConfig(
+            *config.get("GET", DEFAULT_LATENCY_ENTRY))
+
+        self.put_latencies = LatencyConfig(
+            *config.get("PUT", DEFAULT_LATENCY_ENTRY))
+
+    def get_by_action(self, action):
+        """Return the corresponding LatencyConfig for the action passed in.
+
+        Args:
+            actions (str): Action as a string. (Options can be found on the
+                           ACTIONS global obect.
+        """
+        if action == ACTIONS.DELETE:
+            return self.delete_latencies
+
+        elif action == ACTIONS.GET:
+            return self.get_latencies
+
+        elif action == ACTIONS.PUT:
+            return self.put_latencies
+
+
+class LatencyConfig(object):
+    """Datastore latency configuration object.
+
+    Properties:
+        latencies (Choice): Choice object of datastore latencies
+        latency_rate (float): Latency Rate (should be between 0.00 and 1.00)
+    """
+
+    def __init__(self, latencies, latency_rate):
+        """Initialize the LatencyConfig object setting the latencies and
+        latency_rate to the passed in values. The latencies are converted to a
+        Choice object.
+
+        Args:
+            latencies (dict): Dictionary of choices (keys) and propability
+                              weights (values)
+            latency_rate (float): Latency rate value between 0.00 and 1.00
+        """
+        self.latencies = Choice(latencies.values(), latencies.keys())
+        self.latency_rate = latency_rate

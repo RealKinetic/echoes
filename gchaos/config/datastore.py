@@ -61,6 +61,33 @@ PUT_ERRORS = {
     full_name(datastore_errors.Timeout): 80,
 }
 
+DEFAULT_LATENCY = (500, 10000)
+DELETE_LATENCY_RATE = 0.05
+GET_LATENCY_RATE = 0.01
+PUT_LATENCY_RATE = 0.02
+
+DELETE_LATENCY = {
+    full_name(datastore_errors.BadValueError): DEFAULT_LATENCY,
+    full_name(datastore_errors.BadRequestError): DEFAULT_LATENCY,
+    full_name(datastore_errors.InternalError): DEFAULT_LATENCY,
+    full_name(datastore_errors.Timeout): DEFAULT_LATENCY,
+}
+
+GET_LATENCY = {
+    full_name(datastore_errors.BadValueError): DEFAULT_LATENCY,
+    full_name(datastore_errors.BadRequestError): DEFAULT_LATENCY,
+    full_name(datastore_errors.EntityNotFoundError): DEFAULT_LATENCY,  # ERROR IS DEPRECATED
+    full_name(datastore_errors.InternalError): DEFAULT_LATENCY,
+    full_name(datastore_errors.Timeout): DEFAULT_LATENCY,
+}
+
+PUT_LATENCY = {
+    full_name(datastore_errors.BadValueError): DEFAULT_LATENCY,
+    full_name(datastore_errors.BadRequestError): DEFAULT_LATENCY,
+    full_name(datastore_errors.InternalError): DEFAULT_LATENCY,
+    full_name(datastore_errors.Timeout): DEFAULT_LATENCY,
+}
+
 # Wrap it all up into the CONFIG variable
 CONFIG = {
     'enabled': True,
@@ -69,7 +96,11 @@ CONFIG = {
         GET: (GET_ERRORS, GET_ERROR_RATE),
         PUT: (PUT_ERRORS, PUT_ERROR_RATE),
     },
-    'latency': None
+    'latency': {
+        DELETE: (DELETE_LATENCY, DELETE_LATENCY_RATE),
+        GET: (GET_LATENCY, GET_LATENCY_RATE),
+        PUT: (PUT_LATENCY, PUT_LATENCY_RATE),
+    }
 }
 
 # Place CONFIG in the list of publically available variables
