@@ -26,7 +26,8 @@ from gchaos.gae.datastore.actions import ACTIONS
 
 
 DEFAULT_ERROR_ENTRY = ({}, 0.00)
-DEFAULT_LATENCY_ENTRY = ({}, 0.00)
+DEFAULT_LATENCY_ENTRY = (None, 0.00)
+DEFAULT_CONFIG = (False, {})
 
 
 class ChaosConfig(object):
@@ -64,31 +65,35 @@ class DatastoreConfig(object):
             config (dict): Dictionary of a Datastore Configuration
         """
         self.enabled = config.get('enabled', False)
-        self.errors = ErrorsConfig(config.get('errors', {}))
-        self.latency = LatenciesConfig(config.get('latency', {}))
+        self.errors = ErrorsConfig(*config.get('errors', DEFAULT_CONFIG))
+        self.latency = LatenciesConfig(*config.get('latency', DEFAULT_CONFIG))
 
 
 class ErrorsConfig(object):
     """Datastore errors configuration object.
 
     Properties:
+        enabled (bool): Flag for enabling
         delete_errors (ErrorConfig): Delete error configuration
         get_errors (ErrorConfig): Get error configuration
         put_errors (ErrorConfig): Put error configuration
     """
 
-    def __init__(self, config):
+    def __init__(self, enabled, config):
         """Initlialize the ErrorsConfig object setting the delete_errors,
         get_errors and put_errors to an ErrorConfig generated off the passed in
         config.
 
         Args:
+            enabled (bool): Flag for enabling
             config (dict): Dictionary of a Datastore Errors Configuration
         """
+        self.enabled = enabled
         self.delete_errors = ErrorConfig(
             *config.get("DELETE", DEFAULT_ERROR_ENTRY))
         self.get_errors = ErrorConfig(*config.get("GET", DEFAULT_ERROR_ENTRY))
         self.put_errors = ErrorConfig(*config.get("PUT", DEFAULT_ERROR_ENTRY))
+        # self.enabled =
 
     def get_by_action(self, action):
         """Return the corresponding ErrorConfig for the action passed in.
@@ -132,19 +137,23 @@ class LatenciesConfig(object):
     """Datastore latencies configuration object.
 
     Properties:
+        enabled (bool): Flag for enabling
         delete_latencies (LatencyConfig): Delete latency configuration
         get_latencies (LatencyConfig): Get latency configuration
         put_latencies (LatencyConfig): Put latency configuration
     """
 
-    def __init__(self, config):
+    def __init__(self, enabled, config):
         """Initlialize the LatenciesConfig object setting the delete_latencies,
         get_latencies and put_latencies to a LatencyConfig generated off the
         passed in config.
 
         Args:
+            enabled (bool): Flag for enabling
             config (dict): Dictionary of a Datastore Latencies Configuration
         """
+        self.enabled = enabled
+
         self.delete_latencies = LatencyConfig(
             *config.get("DELETE", DEFAULT_LATENCY_ENTRY))
 
@@ -179,15 +188,16 @@ class LatencyConfig(object):
         latency_rate (float): Latency Rate (should be between 0.00 and 1.00)
     """
 
-    def __init__(self, latencies, latency_rate):
+    def __init__(self, latency, latency_rate):
         """Initialize the LatencyConfig object setting the latencies and
         latency_rate to the passed in values. The latencies are converted to a
         Choice object.
 
         Args:
-            latencies (dict): Dictionary of choices (keys) and propability
-                              weights (values)
+            latency (tuple): A tuple that is the range of a latency spike to
+                             pic from. The second value can be ignored to just
+                             use a constant rate.
             latency_rate (float): Latency rate value between 0.00 and 1.00
         """
-        self.latencies = Choice(latencies.values(), latencies.keys())
+        self.latency = latency
         self.latency_rate = latency_rate

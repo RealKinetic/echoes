@@ -23,57 +23,110 @@
 
 import logging
 
-from collections import defaultdict
 import random
+from random import randint
+from time import sleep
 
-
-from itertools import ifilter
-from itertools import imap
-
-from gchaos.errors import ChaosException
-from gchaos.gae.datastore.actions import ACTIONS
-from gchaos.settings import DATASTORE_STUB
+from gchaos.chance import roll
+from gchaos.errors import InvalidLatencyException
 from gchaos.utils import get_func_info_for_path
 
 
-
-def trigger(error_config):
-    """Generates a chance value between 0 and 1. If the error rate on the error
-    config is greather than or equal to the chance then it will trigger errors
-    if errors exist on the config. It will get the error configs next option
-    which is based on the error config probabilities.
+def trigger(latency_config):
+    """Generates a chance value between 0 and 1. If the latency rate on the
+    latency config is greather than or equal to the chance then it will trigger
+    latencies if latencies exist on the config. It will get the latency configs
+    next option which is based on the latency config probabilities.
 
     Args:
-        error_config (gchaos.config.hydrate.ErrorConfig): Datastore Error
-                                                          Configuration
+        latency_config (gchaos.config.hydrate.LatncyConfig):
+            Datastore Latency Configuration
 
     Return:
         None
     """
-    chance = _get_chance()
-
-    logging.info("ERROR RATE {0} AND CHANCE {1}".format(
-        error_config.error_rate, chance))
-
-    if error_config.error_rate < chance:
-        # TODO: Look at using inspect to insert this definition will always
-        # work.
+    if not roll(latency_config.latency_rate):
         return
 
-    if error_config.errors.choices and error_config.errors.weights:
-        logging.info("Looking for error to raise.")
-        error_info = get_func_info_for_path(error_config.errors.next())
-        logging.info("Going to raise %s", error_info.name)
-        raise error_info.func()
-
-    raise ChaosException("Raising Chaos!")
+    stall(latency_config.latency)
 
 
-def _get_chance():
-    """Generate a random number and return it.
+def stall(latency):
+    """Based off the latency stall for that long. The latency is a tuple if only
+    one value is provided then stall for exactly that long. If to values are
+    provided then stall for a random choice between those values.
+
+    Args:
+        latency (tuple(int, int): A tuple of a latency range (in milliseconds)
+
+    Return:
+        None
+    """
+    if not latency:
+        return
+
+    _stall(_get_latency(latency))
+
+
+def _get_latency(latency):
+    """Check the latency field and if it's a single value tuple or an integer
+    then return that value. If it's a 2 value tuple then get the value from the
+    range. Otherwise raise an InvalidLatencyException.
+
+    Args:
+        latency (tuple(int,) | tuple(int, int) | int):
+            A tuple of one or two ints or just an int.
+
+    Return:
+        None
+    """
+    if isinstance(latency, tuple):
+        if len(latency) == 1:
+            return latency[0]
+
+        return get_stall_time_from_range(latency)
+
+    if isinstance(latency, int):
+        return latency
+
+    raise InvalidLatencyException(latency)
+
+
+def get_stall_time_from_range(latency):
+    """Take the latency tuple and randomly choose a value that falls within
+    that range.
+
+    Args:
+        latency (tuple(int, int)): A tuple of ints to make a range
 
     Return:
         int
     """
+    if len(latency) != 2:
+        raise InvalidLatencyException(latency)
+
+    min_, max_ = latency
+
+    if max_ < min_:
+        raise InvalidLatencyException(latency)
+
     random.seed()
-    return random.random()
+    # TODO: Ensure second value is greater
+    return randint(min_, max_)
+
+
+def _stall(milli_time):
+    """Call time.sleep with the time (in milliseconds) divided by 1000 to
+    convert it to seconds.
+
+    Args:
+        milli_time (int): Time in milliseconds
+
+    Return:
+        None
+    """
+    logging.info(
+        "CHAOS: Starting to stall the call for {0} milliseconds".format(
+            milli_time))
+
+    sleep(milli_time / float(1000))

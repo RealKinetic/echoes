@@ -22,20 +22,23 @@
 
 import unittest
 
+from mock import call
 from mock import MagicMock
 from mock import patch
 
 from gchaos.config import CHAOS_CONFIG
 from gchaos.gae.datastore.actions import ACTIONS
+from gchaos.gae.datastore.latency import trigger as trigger_latency
 from gchaos.gae.datastore.errors import trigger as trigger_errors
 from gchaos.gae.datastore.hook import get_config_and_trigger
 from gchaos.gae.datastore.hook import trigger_action
+from gchaos.gae.datastore.hook import _trigger_actions
 
 
-@patch('gchaos.gae.datastore.hook.get_config_and_trigger')
+@patch('gchaos.gae.datastore.hook._trigger_actions')
 class TriggerActionErrorTests(unittest.TestCase):
 
-    def test_name_not_in_actions(self, get_config_and_trigger_mock):
+    def test_name_not_in_actions(self, trigger_actions_mock):
         """Ensure if the name is not in the actions that no subsequent calls
         are made.
         """
@@ -45,9 +48,9 @@ class TriggerActionErrorTests(unittest.TestCase):
 
         trigger_action(name, ds_config)
 
-        get_config_and_trigger_mock.assert_not_called()
+        trigger_actions_mock.assert_not_called()
 
-    def test_name_in_actions(self, get_config_and_trigger_mock):
+    def test_name_in_actions(self, trigger_actions_mock):
         """Ensure if the name is in the actions that subsequent calls are made.
         """
         name = ACTIONS.GET
@@ -56,8 +59,79 @@ class TriggerActionErrorTests(unittest.TestCase):
 
         trigger_action(name, ds_config)
 
+        trigger_actions_mock.assert_called_once_with(name, ds_config)
+
+
+@patch('gchaos.gae.datastore.hook.get_config_and_trigger')
+class TriggerActionsTestCase(unittest.TestCase):
+
+    def tearDown(self):
+        ds_config = CHAOS_CONFIG.datastore
+
+        ds_config.errors.enabled = True
+        ds_config.latency.enabled = True
+
+        super(TriggerActionsTestCase, self).tearDown()
+
+    def test_nothing_enabled(self, get_config_and_trigger_mock):
+        """Ensure if none of the configs are enabled that nothing is triggered.
+        """
+        name = ACTIONS.GET
+
+        ds_config = CHAOS_CONFIG.datastore
+
+        ds_config.errors.enabled = False
+        ds_config.latency.enabled = False
+
+        _trigger_actions(name, ds_config)
+
+        get_config_and_trigger_mock.assert_not_called()
+
+    def test_errors_enabled(self, get_config_and_trigger_mock):
+        """Ensure if the errors module is enabled that it is triggered."""
+        name = ACTIONS.GET
+
+        ds_config = CHAOS_CONFIG.datastore
+
+        ds_config.errors.enabled = True
+        ds_config.latency.enabled = False
+
+        _trigger_actions(name, ds_config)
+
         get_config_and_trigger_mock.assert_called_once_with(
             name, ds_config.errors, trigger_errors)
+
+    def test_latency_enabled(self, get_config_and_trigger_mock):
+        """Ensure if the latency module is enabled that it is triggered."""
+        name = ACTIONS.GET
+
+        ds_config = CHAOS_CONFIG.datastore
+
+        ds_config.errors.enabled = False
+        ds_config.latency.enabled = True
+
+        _trigger_actions(name, ds_config)
+
+        get_config_and_trigger_mock.assert_called_once_with(
+            name, ds_config.latency, trigger_latency)
+
+    def test_all_enabled(self, get_config_and_trigger_mock):
+        """Ensure if all the modules are enabled that they are all triggered."""
+        name = ACTIONS.GET
+
+        ds_config = CHAOS_CONFIG.datastore
+
+        ds_config.errors.enabled = True
+        ds_config.latency.enabled = True
+
+        _trigger_actions(name, ds_config)
+
+        calls = [
+            call(name, ds_config.errors, trigger_errors),
+            call(name, ds_config.latency, trigger_latency)
+        ]
+
+        get_config_and_trigger_mock.assert_has_calls(calls)
 
 
 class GetConfigAndTriggerTestCase(unittest.TestCase):

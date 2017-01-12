@@ -22,18 +22,9 @@
 
 import logging
 
-from collections import defaultdict
-
-
-from itertools import ifilter
-from itertools import imap
-
 from gchaos.chance import roll
 from gchaos.errors import ChaosException
-from gchaos.gae.datastore.actions import ACTIONS
-from gchaos.settings import DATASTORE_STUB
 from gchaos.utils import get_func_info_for_path
-
 
 
 def trigger(error_config):

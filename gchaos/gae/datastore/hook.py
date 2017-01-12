@@ -24,6 +24,7 @@ import logging
 
 from gchaos.settings import DATASTORE_STUB
 from gchaos.gae.datastore.actions import ACTIONS
+from gchaos.gae.datastore.latency import trigger as trigger_latency
 from gchaos.gae.datastore.errors import trigger as trigger_errors
 
 
@@ -95,11 +96,27 @@ def trigger_action(name, config):
             "Action is not in our tracked actions {0}".format(uname))
         return
 
+    _trigger_actions(uname, config)
+
+
+def _trigger_actions(name, config):
+    """Call the trigger functions for errors and latencies.
+
+    Args:
+        name (str): Google service action
+        config (gchaos.config.hydrate.DatastoreConfig):
+            Datastore configuration.
+
+    Return:
+        None
+    """
     # Errors
-    get_config_and_trigger(uname, config.errors, trigger_errors)
+    if config.errors.enabled:
+        get_config_and_trigger(name, config.errors, trigger_errors)
 
     # Latencies
-    # get_config_and_trigger(uname, config.latencies)
+    if config.latency.enabled:
+        get_config_and_trigger(name, config.latency, trigger_latency)
 
 
 def get_config_and_trigger(service_name, config, trigger_func):
