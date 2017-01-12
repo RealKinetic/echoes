@@ -111,7 +111,7 @@ def get_stall_time_from_range(latency):
         raise InvalidLatencyException(latency)
 
     random.seed()
-    # TODO: Ensure second value is greater
+    
     return randint(min_, max_)
 
 
