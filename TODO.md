@@ -18,7 +18,7 @@ TODOS
   - [x] Default config off common error patterns
     - [x] Verify errors are still accurate
     - [x] Add reference to sdk file(s) with errors
-  - [ ] Latency spikes
+  - [x] Latency spikes
   - [ ] Hot key / entity monitoring
   - [ ] Entity type pattern matching
   - [ ] Key pattern matching
