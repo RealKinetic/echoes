@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-from gchaos.gae.datastore.errors import install_error_hook
+from gchaos.gae.datastore.hook import install_hook
 
 
 def install_datastore_hooks(config):
@@ -35,4 +35,4 @@ def install_datastore_hooks(config):
         None
     """
     if config.enabled:
-        install_error_hook(config.errors)
+        install_hook(config)

@@ -20,33 +20,46 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import logging
+
+import unittest
+
+from mock import patch
 
 from gchaos.chance import roll
-from gchaos.errors import ChaosException
-from gchaos.utils import get_func_info_for_path
 
 
-def trigger(error_config):
-    """Generates a chance value between 0 and 1. If the error rate on the error
-    config is greather than or equal to the chance then it will trigger errors
-    if errors exist on the config. It will get the error configs next option
-    which is based on the error config probabilities.
+@patch('gchaos.chance._get_chance')
+class RollTestCase(unittest.TestCase):
 
-    Args:
-        error_config (gchaos.config.hydrate.ErrorConfig): Datastore Error
-                                                          Configuration
+    def test_value_is_less_than_chance(self, get_chance_mock):
+        """Ensure if the value is less than the chance that it returns false."""
+        get_chance_mock.return_value = 0.99
+        value = 0.01
 
-    Return:
-        None
-    """
-    if not roll(error_config.error_rate):
-        return
+        result = roll(value)
 
-    if error_config.errors.choices and error_config.errors.weights:
-        logging.info("Looking for error to raise.")
-        error_info = get_func_info_for_path(error_config.errors.next())
-        logging.info("Going to raise %s", error_info.name)
-        raise error_info.func()
+        self.assertFalse(result)
 
-    raise ChaosException("Raising Chaos!")
+        get_chance_mock.assert_called_once_with()
+
+    def test_value_is_greater_than_chance(self, get_chance_mock):
+        """Ensure if the value is greater than the chance that it returns true."""
+        get_chance_mock.return_value = 0.01
+        value = 0.99
+
+        result = roll(value)
+
+        self.assertTrue(result)
+
+        get_chance_mock.assert_called_once_with()
+
+    def test_value_is_equal_to_chance(self, get_chance_mock):
+        """Ensure if the value is equal to the chance that it returns true."""
+        get_chance_mock.return_value = 0.50
+        value = 0.50
+
+        result = roll(value)
+
+        self.assertTrue(result)
+
+        get_chance_mock.assert_called_once_with()

@@ -23,3 +23,7 @@
 
 class ChaosException(Exception):
     """A Chaos Exception."""
+
+
+class InvalidLatencyException(Exception):
+    """An invalid latency exception."""

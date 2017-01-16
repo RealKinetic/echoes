@@ -20,28 +20,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import logging
 import random
 
-from gchaos.config import CHAOS_CONFIG
-from gchaos.gae.datastore import install_datastore_hooks
 
-# TODO: Override the logging module so we can get a nice chaos formatted
-# message
+def roll(value):
+    """Returns True if the past in value is greather than the random chance that
+    we compute via the random module.
 
+    Args:
+        value (float): The value to compare to. It should be between
+                      (0.00 and 1.00)
 
-def install_chaos(config=None):
-    """Log a quick message then install the chaos hooks into the Google API
-    Proxies.
+    Return:
+        bool
     """
-    logging.info("CHAOS: Going to cause system wide chaos!!!")
+    chance = _get_chance()
 
-    if not config:
-        config = CHAOS_CONFIG
+    logging.info("RATE {0} AND CHANCE {1}".format(value, chance))
 
-    # TODO: Create a to dict method on the ChaosConfig object.
-    # logging.info("CHAOS: Default Chaos Config: {0}".format(config))
-    random.seed()
+    return value >= chance
 
-    install_datastore_hooks(config.datastore)
+
+def _get_chance():
+    """Generate a random number and return it.
+
+    Return:
+        int
+    """
+    return random.random()

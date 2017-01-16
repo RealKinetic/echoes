@@ -61,15 +61,24 @@ PUT_ERRORS = {
     full_name(datastore_errors.Timeout): 80,
 }
 
+DEFAULT_LATENCY = (500, 10000)
+DELETE_LATENCY_RATE = 0.05
+GET_LATENCY_RATE = 0.01
+PUT_LATENCY_RATE = 0.02
+
 # Wrap it all up into the CONFIG variable
 CONFIG = {
     'enabled': True,
-    'errors': {
+    'errors': (True, {
         DELETE: (DELETE_ERRORS, DELETE_ERROR_RATE),
         GET: (GET_ERRORS, GET_ERROR_RATE),
         PUT: (PUT_ERRORS, PUT_ERROR_RATE),
-    },
-    'latency': None
+    }),
+    'latency': (True, {
+        DELETE: (DEFAULT_LATENCY, DELETE_LATENCY_RATE),
+        GET: (DEFAULT_LATENCY, GET_LATENCY_RATE),
+        PUT: (DEFAULT_LATENCY, PUT_LATENCY_RATE),
+    })
 }
 
 # Place CONFIG in the list of publically available variables
