@@ -22,6 +22,7 @@
 
 
 import logging
+import random
 
 from gchaos.config import CHAOS_CONFIG
 from gchaos.gae.datastore import install_datastore_hooks
@@ -41,5 +42,6 @@ def install_chaos(config=None):
 
     # TODO: Create a to dict method on the ChaosConfig object.
     # logging.info("CHAOS: Default Chaos Config: {0}".format(config))
+    random.seed()
 
     install_datastore_hooks(config.datastore)

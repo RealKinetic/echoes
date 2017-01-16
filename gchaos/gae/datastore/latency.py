@@ -53,7 +53,7 @@ def trigger(latency_config):
 
 def stall(latency):
     """Based off the latency stall for that long. The latency is a tuple if only
-    one value is provided then stall for exactly that long. If to values are
+    one value is provided then stall for exactly that long. If two values are
     provided then stall for a random choice between those values.
 
     Args:
@@ -110,8 +110,6 @@ def get_stall_time_from_range(latency):
     if max_ < min_:
         raise InvalidLatencyException(latency)
 
-    random.seed()
-    
     return randint(min_, max_)
 
 

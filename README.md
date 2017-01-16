@@ -45,7 +45,7 @@ CONFIG = {
             ),
             "GET": ({ 'google.appengine.api.datastore_errors.Timeout': 1 }, 0.01),
             "PUT": (
-                { 'google.appengine.api.datastore_errors.BadRequestError': 0.75
+                { 'google.appengine.api.datastore_errors.BadRequestError': 0.75,
                 'google.appengine.api.datastore_errors.InternalError': 0.25
                 },
                 0.02
@@ -62,7 +62,7 @@ CONFIG = {
 ```
 
 You can disable the entire datastore configuration. If you set the `enabled` flag
-to `False` nothing will happer. If it's set to true it will then look for errors
+to `False` nothing will happen. If it's set to true it will then look for errors
 and latency configrations when it hits a support actions.
 
 There are 3 datastore action types. `DELETE`, `GET`, `PUT`. You can configure different
@@ -71,7 +71,7 @@ For example above the `DELETE` error rate is set to `0.05`. The minimum is `0.00
 which means nothing will happen. Where the maximum is `1.00` which means an error
 or latency spike is guranteed to happen. Otherwise it is just probabistic. Also
 each action is independent of the previous action. Meaning that we don't increase
-or decrease the likelyhood of an action being trigger based off subsequent actions.
+or decrease the likelyhood of an action being triggered based off subsequent actions.
 
 ##### Errors
 
@@ -84,7 +84,7 @@ list of supported Google Datastore errors can be found here:
 
 For each entry in the dictionary you then add a corresponding integer for the
 error to be hit. The entries should add up to 100. This way you can say a specific
-error should have a 50% likely hood of being hit by setting it's value to `50`
+error should have a 50% probability of being hit by setting it's value to `50`
 while you set the other two to `25` and `25` to give them a 25% chance of firing.
 
 ##### Latency

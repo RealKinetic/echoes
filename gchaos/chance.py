@@ -48,5 +48,4 @@ def _get_chance():
     Return:
         int
     """
-    random.seed()
     return random.random()
